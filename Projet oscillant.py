@@ -1,9 +1,14 @@
-#!/usr/bin/env python3
+from scipy.integrate import ode
+import numpy as np
+import matplotlib.pylab as plt
+
+
+
 #variables
 
 f0 = 1000 #s-1
 
-q0 = 100 
+q0 = 10 
 
 k0 = 20 #N/m
 
@@ -15,7 +20,7 @@ fs = 40*f0
 
 Ts = 1/fs #s
 
-Tw = 10 #s
+Tw = 120 #s
 
 #N = Tw/Ts = 400000
 
@@ -28,15 +33,14 @@ tab_t = np.arange(0,10,Ts)
 
 print(tab_t)
 
-tab_f = np.arange(0,2000,Ts)
+tab_f = np.linspace(0,2000,len(tab_t))
 
 print(tab_f)
 
-plt.plot(tab_x_rungekuttascipy,tab_y_rungekuttascipy, label = "rungekutta scipy" )      
+plt.plot(tab_t,tab_f)      
 plt.legend()
-plt.xlabel("x")
-plt.ylabel("y(x)") 
-plt.title("rungekuttascipy")
-plt.savefig("rungekuttascipy.pdf")       
+plt.xlabel("t")
+plt.ylabel("f(t)") 
+plt.title("trace temporelle de la fréquence")
+plt.savefig("trace temporelle de la fréquence.pdf")       
 plt.show()
-
