@@ -1,0 +1,103 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumerate,enumitem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{mathtools}
+\usepackage[cm]{fullpage}
+\usepackage[french]{babel}
+\usepackage{cancel}
+\usepackage{textcomp}
+\parindent 0in
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\setlength{\parindent}{1cm}
+
+
+\newcommand{\nomA}{Lasserre Eliott}   
+\newcommand{\nomB}{Schoegel Alexandre}
+\newcommand{\cours}{Projet de modélisation}  
+\newcommand{\titre}{Oscillateur harmonique en régime non linéaire}
+\newcommand{\classe}{L3 Physique et modélisation}
+
+\begin{document}
+
+\textbf{\large \nomA}\hfill\textbf{\large \classe}\\
+\textbf{\large \nomB}\\
+
+\vspace{8\baselineskip}
+
+\begin{center}
+    \textbf{\Huge \cours}\\
+    \vspace{10\baselineskip}
+     \textbf{\Huge \titre}\\
+     \vspace{10\baselineskip}
+     \textbf{\large Encadré par M. Laurent NONY}
+\end{center}
+
+\newpage
+
+\large \tableofcontents
+
+\newpage
+
+    \section{Introduction}
+    La théorie des oscillateurs est utile en physique pour beaucoup de domaine. En effet beaucoup de phénomènes se comportent comme des oscillateurs. Ainsi on retrouve les méthodes de modélisation liée aux oscillateurs dans beaucoup de domaines différents comme la physique quantique la mécanique l'électricité, aussi ce modèle sert dans beaucoup d'application technique. Nous avons étudié en deuxième année de licence les oscillateurs harmoniques libres, amortie et forcé. C'est tout naturellement que nous nous sommes intéressés aux Oscillateurs non linéaires. Dans un premier temps nous présenterons deux résultats simples, une réponse impulsionnelle de notre oscillateur puis harmonique. Puis nous présenterons notre travail pour des réponses qui n'est pas harmonique et nous présenterons un hystérésis deux fois, une pour chaque force d'interaction non linéaire avec lequel nous avons testé notre code.
+
+    
+    
+    \newpage
+    \section{Etude théorique et démonstrations}
+    
+    \newpage
+    \section{fonctions et principe de départ}
+        \subsection{force ,energie,intégration}
+        \subsection{fonction oscillation et amplitudes(méthode dérivé nul)}
+        
+        
+        
+    \newpage
+    \section{réponse impulsionnelle}
+        \subsection{présentation des résultats}
+        
+        
+        
+    \newpage
+    \section{réponse harmonique}
+        \subsection{présentation des résultats}
+        
+        
+    \newpage    
+    \section{réponse non linéaire}
+        \subsection{présentation des résultats}
+        \subsection{un mot sur le facteur de qualité}
+        \subsection{présentation des résultats}
+    
+    \newpage
+    \section{réponse non linéaire, balayage des fréquences a l'envers}
+        \subsection{présentation des résultats}
+        \subsection{mise en lumiere de Lysterésis} 
+        
+    
+        
+        
+        
+    \newpage    
+    \section{Conclusion}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
+
