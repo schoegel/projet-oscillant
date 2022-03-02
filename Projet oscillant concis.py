@@ -29,6 +29,12 @@ N = int(Tw/Ts)
 
 tab_f = np.linspace(0,2.*f0,N)
 
+f_down = np.linspace(2*f0,0,N)
+
+tab_f_normalise = [f/f0 for f in np.linspace(0,2.*f0,N)]
+
+f_down_normalise = [f/f0 for f in np.linspace(2*f0,0,N)]
+
 tab_t = np.linspace(0,Tw,N)
 
 B = -10**19
@@ -103,6 +109,7 @@ def Oscillations(Aexc,fexc,B, sens='croissant',A=0):
             tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,B,sens,A)[1])
             t = t+Ts
             tab_t.append(t)
+    tab_z=[tab_z[i]/A0 for i in range(len(tab_z))]  
     return(tab_z,tab_zp)
 
 
@@ -116,7 +123,7 @@ def amp(B,f, sens='croissant',A=0):
             amp.append(abs(z[i]))
             f_amp.append(f[i])
     amp1=[(amp[2*i]+amp[2*i-1])/2 for i in range(1,int(len(amp)/2))]
-    f_amp1=[(f_amp[2*i]+f_amp[2*i-1])/2 for i in range(1,int(len(f_amp)/2))]
+    f_amp1=[(f_amp[2*i]+f_amp[2*i-1])/(2*f0) for i in range(1,int(len(f_amp)/2))]
     return(amp1,f_amp1)
     
     
@@ -164,45 +171,30 @@ z_freq_nl = Oscillations(A0/Q0,tab_f,B)[0]
 plt.figure(2)
 
 plt.subplot(2,2,1)
-plt.plot(tab_f,z_freq)
+plt.plot(tab_f_normalise,z_freq)
+plt.plot(amp(0,tab_f)[1],amp(0,tab_f)[0])
 plt.title('Reponse impulsionnelle Beta=0')
 plt.xlabel('frequence')
 plt.ylabel('oscillation')
 plt.grid()
 
 plt.subplot(2,2,2)
-plt.plot(tab_f,z_freq_nl)
+plt.plot(tab_f_normalise,z_freq_nl)
+plt.plot(amp(B,tab_f)[1],amp(B,tab_f)[0])
 plt.title('Reponse impulsionnelle B=-10e19')
 plt.xlabel('frequence')
 plt.ylabel('oscillation')
 plt.grid()
 
 plt.subplot(2,2,3)
-plt.plot(tab_f,Oscillations(A0/Q0,tab_f,-B)[0])
+plt.plot(tab_f_normalise,Oscillations(A0/Q0,tab_f,-B)[0])
+plt.plot(amp(-B,tab_f)[1],amp(-B,tab_f)[0])
 plt.title('Reponse impulsionnelle B=10e19')
 plt.xlabel('frequence')
 plt.ylabel('oscillation')
 plt.grid()
 
 plt.subplot(2,2,4)
-plt.plot(amp(0,tab_f)[1],amp(0,tab_f)[0])
-plt.plot(amp(B,tab_f)[1],amp(B,tab_f)[0])
-plt.plot(amp(-B,tab_f)[1],amp(-B,tab_f)[0])
-plt.title('Amplitudes pour differentes oscillations')
-plt.xlabel('frequence')
-plt.ylabel('ampltitude')
-plt.grid()
-
-plt.show()
-
-
-### Mise en évidence de l'hysteresis
-
-f_down=np.linspace(2*f0,0,N)
-
-plt.figure(3)
-
-plt.subplot(2,1,1)
 plt.plot(amp(B,f_down,sens='decroissant')[1],amp(B,f_down,sens='decroissant')[0],label='Amplitude avec f decroissante')
 plt.plot(amp(B,tab_f)[1],amp(B,tab_f)[0], label='Amplitude avec f croissante')
 plt.title('Hysteresis avec B=-10e19')
@@ -210,9 +202,24 @@ plt.xlabel('frequence')
 plt.ylabel('amplitude')
 plt.grid()
 
+plt.show()
+
+
+### Mise en évidence de l'hysteresis
+
+plt.figure(3)
+
+plt.subplot(2,1,1)
+plt.plot(tab_f_normalise,Oscillations(A0/Q0,tab_f,0,A=A)[0])
+plt.plot(amp(0,tab_f,A=A)[1],amp(0,tab_f,A=A)[0])
+plt.title('Réponse impulsionnelle A=3e-28')
+plt.xlabel('frequence')
+plt.ylabel('amplitude')
+plt.grid()
+
 plt.subplot(2,1,2)
-plt.plot(amp(0,f_down,sens='decroissant',A=A)[1],amp(0,f_down,sens='decroissant',A=A)[0],label='Amplitude avec f decroissante')
-plt.plot(amp(0,tab_f,A=A)[1],amp(0,tab_f,A=A)[0], label='Amplitude avec f croissante')
+plt.plot(amp(0,f_down,sens='decroissant',A=A)[1],amp(0,f_down,sens='decroissant',A=A)[0])
+plt.plot(amp(0,tab_f,A=A)[1],amp(0,tab_f,A=A)[0])
 plt.title('Hysteresis avec A=3e-28')
 plt.xlabel('frequence')
 plt.ylabel('amplitude')
@@ -221,7 +228,14 @@ plt.grid()
 plt.show()
 
 
+### Etude de la phase
 
+Phi = [np.arccos(z_freq[i]) for i in range(len(z_freq))]
+
+plt.figure(4)
+plt.plot(tab_f_normalise,Phi)
+plt.grid()
+plt.show()
 
 
 
