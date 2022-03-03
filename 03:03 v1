@@ -8,7 +8,6 @@ import matplotlib.pylab as plt
 ###############################################################################
 
 ### Variables
-#ref surfacce and inttermolécular forces Israelachvili
 
 f0 = 10
 
@@ -28,199 +27,177 @@ Ts = 1./fs
 
 N = int(Tw/Ts)
 
-f_up = np.linspace(0,2.*f0,N)
+tab_f = np.linspace(0,2.*f0,N)
 
 f_down = np.linspace(2*f0,0,N)
 
-f_up_normalise = [f/f0 for f in np.linspace(0,2.*f0,N)]
+tab_f_normalise = [f/f0 for f in np.linspace(0,2.*f0,N)]
 
 f_down_normalise = [f/f0 for f in np.linspace(2*f0,0,N)]
 
 tab_t = np.linspace(0,Tw,N)
 
-Beta = -10**19
+B = -10**19
 
 d = 3*10**-10
-
-Alpha = 3*10**-28
-
+ 
+A = 3*10**-28 
+ 
 ###############################################################################
 
 ### Defintion des fonctions utilisees pour l'integration de l'eq. diff et cacluls des osccilations
 
-def Force(t,z,Aexc,fexc,Beta, sens='croissant', Alpha=0): # Fonction de la force totale agissant sur l'oscillateur qui peut dependre de plusieurs parametres
+def Force(t,z,Aexc,fexc,B, sens='croissant', A=0): # Fonction de la force totale agissant sur l'oscillateur qui peut dependre de plusieurs parametres
 
     if sens == 'croissant':
         Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*t) # force d'excitation harmonique
-
-    if sens == 'decroissant': #la comparaison des amplitudes dans les deux sens fait apparaitre l'hysteris  
-        Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*(Tw-t)) # le balayage de fréquence inverse implique un changement dans l'expression du (t ddevient TW-T)
-
-    Fnl = Beta*z**3 # force d'excitation non lineaire duffing
-
-    Fnl2 = -Alpha/((d+A0+z)**2) #force d'excitation non linéaire réaliste Van der Waals origine dispersive
-
-    F_tot = Fexc + Fnl + Fnl2 
-
+        
+    if sens == 'decroissant':
+        Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*(Tw-t))
+        
+    Fnl = B*z**3 # force d'excitation non lineaire
+    
+    Fnl2 = -A/((d+A0+z)**2)
+    
+    F_tot = Fexc + Fnl + Fnl2
+    
     return F_tot
+    
+    
 
+def E(t,z,zp,Aexc,fexc,B, sens='croissant',A=0): # Fonction E de RK4 qui peut dependre de plusieurs parametres
+    return ((w0**2/k0)*Force(t,z,Aexc,fexc,B,sens,A)-(w0/Q0)*zp-w0**2*z)
 
+ 
+ 
 
-def E(t,z,zp,Aexc,fexc,Beta, sens='croissant',Alpha=0): # Fonction E de RK4 qui peut dependre de plusieurs parametres
-    return ((w0**2/k0)*Force(t,z,Aexc,fexc,Beta,sens,Alpha)-(w0/Q0)*zp-w0**2*z)
-
-
-
-
-def RK4(t,z,zp,Aexc,fexc,Beta, sens='croissant',Alpha=0):# Algorithme de RK4 en tant que tel
+def RK4(t,z,zp,Aexc,fexc,B, sens='croissant',A=0):
     k1 = Ts*zp
-    l1 = Ts*E(t,z,zp,Aexc,fexc,Beta,sens,Alpha)
-
+    l1 = Ts*E(t,z,zp,Aexc,fexc,B,sens,A)
+    
     k2 = Ts*(zp + l1/2)
-    l2 = Ts*E(t + Ts/2, z+k1/2, zp + l1/2, Aexc, fexc,Beta,sens,Alpha)
-
+    l2 = Ts*E(t + Ts/2, z+k1/2, zp + l1/2, Aexc, fexc,B,sens,A)
+     
     k3 = Ts*(zp + l2/2)
-    l3 = Ts*E(t+Ts/2, z+k2/2, zp+l2/2, Aexc ,fexc,Beta,sens,Alpha)
-
+    l3 = Ts*E(t+Ts/2, z+k2/2, zp+l2/2, Aexc ,fexc,B,sens,A)
+    
     k4 = Ts*(zp + l3)
-    l4 = Ts*E(t+Ts, z+k3, zp+l3, Aexc, fexc,Beta,sens,Alpha)
-
+    l4 = Ts*E(t+Ts, z+k3, zp+l3, Aexc, fexc,B,sens,A)
+    
     q1 = (k1+2*k2+2*k3+k4)/6
     q2 = (l1+2*l2+2*l3+l4)/6
-
+    
     return([z+q1,zp+q2])
 
 
-def Oscillations(Aexc,fexc,Beta, sens='croissant',Alpha=0):#Cette fonction nous permet d'éviter d'avoir a réinitialiser les tableaux et permet d'automatiser l'intégration
+def Oscillations(Aexc,fexc,B, sens='croissant',A=0):
     t = 0.
-    z = 0.   
+    z = 0.    
     zp= 1e-11
     tab_t = [t]
     tab_z = [z]
     tab_zp= [zp]
     if type(fexc)!=np.ndarray:
         for i in range(N-1):
-            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,Beta,sens,Alpha)[0])
-            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,Beta,sens,Alpha)[1])
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,B,sens,A)[0])
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,B,sens,A)[1])
             t = t+Ts
             tab_t.append(t)
     else:
         for i in range(N-1):
-            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[0])
-            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[1])
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,B,sens,A)[0])
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,B,sens,A)[1])
             t = t+Ts
             tab_t.append(t)
-    tab_z=[tab_z[i]/A0 for i in range(len(tab_z))] 
+    # tab_z=[tab_z[i]/A0 for i in range(len(tab_z))]  
     return(tab_z,tab_zp)
 
 
-def amp(Beta,f, sens='croissant',Alpha=0):#Nous donne les amplitudes grace a la méthode des derivé qui s'annule
-    z=Oscillations(A0/Q0,f,Beta,sens,Alpha)[0]
-    zp=Oscillations(A0/Q0,f,Beta,sens,Alpha)[1]
+def amp(B,f, sens='croissant',A=0):
+    z=Oscillations(A0/Q0,f,B,sens,A)[0]
+    zp=Oscillations(A0/Q0,f,B,sens,A)[1]
     f_amp=[]
     amp=[]
     for i in range(len(zp)):
-        if zp[i]*zp[i-1]<=0: #si la multiplication de c'est deux vitesses est nul c'est que le mouvement ateint un sommet
-            amp.append(abs(z[i]))
+        if zp[i]*zp[i-1]<=0 and zp[i]<=zp[i-1]:
+            amp.append(max(z[i],z[i-1]))
             f_amp.append(f[i])
-    amp1=[(amp[2*i]+amp[2*i-1])/2 for i in range(1,int(len(amp)/2))]
-    f_amp1=[(f_amp[2*i]+f_amp[2*i-1])/(2*f0) for i in range(1,int(len(f_amp)/2))]
-    return(amp1,f_amp1)
-
-
+    return(amp,f_amp)
+    
+    
 ########## Plots
 
-                                    ###### Cas linéaire
 
-### Oscillations sans excitation
 
-z_1=Oscillations(0,0,0)[0] #Aexc=fexc=B=0 pas de force non linéaire ,pas d'aamplitude d'excitation, frequence =f0 s'annnul de tout maniere ave Aexc =
+### Oscillations sans et avec excitation
 
+z_1=Oscillations(0,0,0)[0] 
+z_exc = Oscillations(A0/Q0,f0,0)[0]
 
 plt.figure(1)
 
-
-# plt.subplot(2,2,1)
-# plt.plot(tab_t,z_1)
-# plt.title('Oscillations sans excitation')
-# plt.grid()
-
-plt.subplot(2,1,1) #crée un tableau avec les deux prochaines figure cote à cote
-plt.plot(tab_t[0:1000],z_1[0:1000]) #zoom
-plt.xlabel("temps (s)")
-plt.ylabel("oscillation z (m)")
-plt.title('réponse impulsionnelle')
+plt.subplot(2,2,1)
+plt.plot(tab_t,z_1)
+plt.title('Oscillations sans excitation')
 plt.grid()
 
-### Oscillations avec excitation constante f0
+plt.subplot(2,2,2)
+plt.plot(tab_t[0:1000],z_1[0:1000])
+plt.title('Oscillations sans excitation zoomée')
+plt.grid()
 
-z_exc = Oscillations(A0/Q0,f0,0)[0]
 
-# plt.subplot(2,2,3)
-# plt.plot(tab_t,z_exc)
-# plt.title('Oscillations avec excitation constante f0')
-# plt.grid()
-
-plt.subplot(2,1,2)
-plt.plot(tab_t[0:1000],z_exc[0:1000]) #zoom
-plt.xlabel("temps (s)")
-plt.ylabel("oscillation (m)")
-plt.title('réponse harmonique')
+plt.subplot(2,2,3)
+plt.plot(tab_t,z_exc)
 plt.title('Oscillations avec excitation constante f0')
+plt.grid()
+
+plt.subplot(2,2,4)
+plt.plot(tab_t[0:1000],z_exc[0:1000])
+plt.title('Oscillations avec excitation constante f0 zoomée')
 plt.grid()
 
 plt.show()
 
-                                ###### Cas non linéaire
-### Oscillations et amplitudes
 
+### Oscillations et amplitudes 
 
-z_freq = Oscillations(A0/Q0,f_up,0)[0] #balayage des fréquences sans force d'interaction Beta = 0 
-z_freq_nl = Oscillations(A0/Q0,f_up,Beta)[0] #balayage des fréquences sans force d'interaction Beta = 0 
+z_freq = Oscillations(A0/Q0,tab_f,0)[0]
+zp_freq = Oscillations(A0/Q0,tab_f,0)[1]
+amp_z_freq = amp(0,tab_f)[0]
+
+z_freq_nl = Oscillations(A0/Q0,tab_f,B)[0]
 
 plt.figure(2)
 
 plt.subplot(2,2,1)
-plt.plot(f_up_normalise,z_freq)
-plt.plot(amp(0,f_up)[1],amp(0,f_up)[0])
-plt.title('Reponse du balayage de fréquence sans force linéaire')
-plt.xlabel('frequence(s-1')
-plt.ylabel('oscillation(m)')
+plt.plot(tab_f,z_freq)
+plt.plot(amp(0,tab_f)[1],amp_z_freq)
+plt.title('Reponse impulsionnelle Beta=0')
+plt.xlabel('frequence')
+plt.ylabel('oscillation')
 plt.grid()
 
 plt.subplot(2,2,2)
-plt.plot(f_up_normalise,z_freq_nl)
-plt.plot(amp(Beta,f_up)[1],amp(Beta,f_up)[0])
-plt.title('Reponse du balayage en fréquence avec BETA negatif')
+plt.plot(tab_f,z_freq_nl)
+plt.plot(amp(B,tab_f)[1],amp(B,tab_f)[0])
+plt.title('Reponse impulsionnelle B=-10e19')
 plt.xlabel('frequence')
-plt.ylabel('oscillation(m)')
+plt.ylabel('oscillation')
 plt.grid()
 
 plt.subplot(2,2,3)
-plt.plot(f_up_normalise,Oscillations(A0/Q0,f_up,-Beta)[0])
-plt.plot(amp(-Beta,f_up)[1],amp(-Beta,f_up)[0])
-plt.title('Reponse balayage en frequence BETA positif')
+plt.plot(tab_f,Oscillations(A0/Q0,tab_f,-B)[0])
+plt.plot(amp(-B,tab_f)[1],amp(-B,tab_f)[0])
+plt.title('Reponse impulsionnelle B=10e19')
 plt.xlabel('frequence')
 plt.ylabel('oscillation')
 plt.grid()
-
-#Balayage en fréquence inverse
 
 plt.subplot(2,2,4)
-plt.plot(f_down_normalise,Oscillations(A0/Q0,f_down,Beta,sens='decroissant')[0])
-plt.plot(amp(Beta,f_down,sens='decroissant')[1],amp(Beta,f_down,sens='decroissant')[0])
-plt.title('Reponse balayage en frequence inverse avec BETA negatif')
-plt.xlabel('frequence')
-plt.ylabel('oscillation')
-plt.grid()
-
-plt.show()
-
-### Mise en évidence de l'hysteresis 
-
-plt.plot(amp(Beta,f_down,sens='decroissant')[1],amp(Beta,f_down,sens='decroissant')[0],label='Amplitude avec f decroissante')
-plt.plot(amp(Beta,f_up)[1],amp(Beta,f_up)[0], label='Amplitude avec f croissante')
-plt.title('Hysteresis avec Beta=-10e19')
+plt.plot(amp(B,f_down,sens='decroissant')[1],amp(B,f_down,sens='decroissant')[0],label='Amplitude avec f decroissante')
+plt.plot(amp(B,tab_f)[1],amp(B,tab_f)[0], label='Amplitude avec f croissante')
+plt.title('Hysteresis avec B=-10e19')
 plt.xlabel('frequence')
 plt.ylabel('amplitude')
 plt.grid()
@@ -228,23 +205,22 @@ plt.grid()
 plt.show()
 
 
-#Cas d'une force réelle
+### Amplitude et hysteresis 
 
-plt.figure(3)
+plt.frigure(3)
 
-plt.plot()
-plt.plot(f_up_normalise,Oscillations(A0/Q0,f_up,0,Alpha=Alpha)[0])
-plt.plot(amp(0,f_up,Alpha=Alpha)[1],amp(0,f_up,Alpha=Alpha)[0])
-plt.title('Réponse avec une force d interaction de Van der Walls A=3e-28')
+plt.subplot(2,1,1)
+plt.plot(tab_f,Oscillations(A0/Q0,tab_f,0,A=A)[0])
+plt.plot(amp(0,tab_f,A=A)[1],amp(0,tab_f,A=A)[0])
+plt.title('Réponse impulsionnelle A=3e-28')
 plt.xlabel('frequence')
 plt.ylabel('amplitude')
 plt.grid()
-### Mise en évidence de l'hysteresis
 
-plt.plot()
-plt.plot(amp(0,f_down,sens='decroissant',Alpha=Alpha)[1],amp(0,f_down,sens='decroissant',Alpha=Alpha)[0])
-plt.plot(amp(0,f_up,Alpha=Alpha)[1],amp(0,f_up,Alpha=Alpha)[0])
-plt.title('Hysteresis ')
+plt.subplot(2,1,2)
+plt.plot(amp(0,f_down,sens='decroissant',A=A)[1],amp(0,f_down,sens='decroissant',A=A)[0])
+plt.plot(amp(0,tab_f,A=A)[1],amp(0,tab_f,A=A)[0])
+plt.title('Hysteresis avec A=3e-28')
 plt.xlabel('frequence')
 plt.ylabel('amplitude')
 plt.grid()
@@ -254,9 +230,23 @@ plt.show()
 
 ### Etude de la phase
 
-Phi = [np.arccos(z_freq[i]) for i in range(len(z_freq))]
+Ampli_phase=[]
 
+C=0
+
+for i in range(len(zp_freq)):
+    Ampli_phase.append(amp_z_freq[C-1])
+    if zp_freq[i-1]*zp_freq[i]<=0 and zp_freq[i-1] >= zp_freq[i]:
+        C+=1
+
+Phi = [np.arccos(z_freq[i]/Ampli_phase[i]) - 2*np.pi*tab_f[i]*tab_t[i] for i in range(N)]
+del Ampli_phase[0:10]
 plt.figure(4)
-plt.plot(f_up_normalise,Phi)
+
+plt.plot(tab_f,z_freq)
+plt.plot(tab_f,Ampli_phase)
+plt.title('Reponse impulsionnelle Beta=0')
+plt.xlabel('frequence')
+plt.ylabel('oscillation')
 plt.grid()
 plt.show()
