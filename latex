@@ -42,7 +42,7 @@
 \newpage
 
     \section{Introduction}
-    La théorie des oscillateurs est utile en physique pour beaucoup de domaine. En effet beaucoup de phénomènes se comportent comme des oscillateurs. Ainsi on retrouve les méthodes de modélisation liée aux oscillateurs dans beaucoup de domaines différents comme la physique quantique la mécanique l'électricité, aussi ce modèle sert dans beaucoup d'application technique. Nous avons étudié en deuxième année de licence les oscillateurs harmoniques libres, amortie et forcé. C'est tout naturellement que nous nous sommes intéressés aux Oscillateurs non linéaires. Dans un premier temps nous présenterons deux résultats simples, une réponse impulsionnelle de notre oscillateur puis harmonique. Puis nous présenterons notre travail pour des réponses qui n'est pas harmonique et nous présenterons un hystérésis deux fois, une pour chaque force d'interaction non linéaire avec lequel nous avons testé notre code.
+    La théorie des oscillateurs est utile en physique dans de nombreux domaines. En effet beaucoup de phénomènes oscillent. Ainsi on retrouve les méthodes de modélisation liées aux oscillateurs dans différentes discipline physique, comme la physique quantique la mécanique l'électricité, ce modèle s'applique dans beaucoup d'application technique. Nous avons étudié en deuxième année de licence les oscillateurs harmoniques libres, amortie et forcé. C'est tout naturellement que nous nous sommes intéressés aux Oscillateurs non linéaires. Le but de notre projet est de constitué un programme capable de metre en évidence le phénomène de l'hystérésis propre aux oscillateurs harmonique en régime non linéaire. Dans cette optique nous allons dans un premier temps présenter deux résultats simples, une réponse impulsionnelle de notre oscillateur puis une réponse harmonique. Puis nous présenterons notre travail pour des réponses en régime non linéaire et nous présenterons un hystérésis deux fois, une pour chaque force d'interaction non linéaire avec lequel nous avons testé notre code.
 
     
     
@@ -88,7 +88,7 @@
 
 
 
-
+olution to record, convert and stream audio and video. 
 
 
 
@@ -100,4 +100,3 @@
 
 
 \end{document}
-
