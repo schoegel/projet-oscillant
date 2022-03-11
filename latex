@@ -1,102 +1,179 @@
-\documentclass[12pt]{article}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{enumerate,enumitem}
+\documentclass[a4paper,11pt]{article}
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage{geometry}
+\usepackage{amsmath}
 \usepackage{mathtools}
-\usepackage[cm]{fullpage}
-\usepackage[french]{babel}
-\usepackage{cancel}
-\usepackage{textcomp}
-\parindent 0in
-\usepackage{graphicx}
-\usepackage{indentfirst}
-\setlength{\parindent}{1cm}
+\usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage{fancybox}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{braket}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{cmbright}
+\usepackage{abstract}
+\usepackage{listings}
+\usepackage{listingsutf8}
+\usepackage{lipsum}
 
+% options générales
+\setlist[itemize,1]{label={$\bullet$}}
+\setlist[itemize,2]{label={$\star$}}
+\titleformat*{\section}{\large\bfseries}
+\textheight=24cm \textwidth=17cm
+\topmargin=-1.cm \oddsidemargin=-.5cm
+\parindent=1cm
 
-\newcommand{\nomA}{Lasserre Eliott}   
-\newcommand{\nomB}{Schoegel Alexandre}
-\newcommand{\cours}{Projet de modélisation}  
-\newcommand{\titre}{Oscillateur harmonique en régime non linéaire}
-\newcommand{\classe}{L3 Physique et modélisation}
+% options de listing pour inclure du code
+\lstset{
+inputencoding=utf8/latin1,
+numbers=left,
+numberstyle={\tiny \texttt},
+numbersep=5pt,
+language=python,
+basicstyle=\ttfamily\small,
+backgroundcolor=\color{gray!5}
+}
+
+% entete et pied de page
+\pagestyle{fancy}
+\lhead{\textsc{Lasserre Eliott et Alexandre Schoegel}} \chead{} \rhead{Projet modélisation}
+\def\ligne#1{\leaders\hrule height #1\linethickness \hfill}
+% \pagestyle{empty}
+\title{Modèle et recommandations pour votre rapport}
+\author{Lasserre Eliott et Schoegel Alexandre}
+\date{\today}
 
 \begin{document}
+\maketitle
+\begin{abstract}
+  Ce rapport à pour but de présenter notre modèle capable de prédire les réponses de plusieurs oscillateurs.
+  
+  Et de présenter nos résultats pour : 
+  
+  \begin{itemize}
+  \item un oscillateur soumis a une impulsion 
+  \item un oscillateur forcé
+  \item deux oscillateur soumis a une force non linéaire 
+  
 
-\textbf{\large \nomA}\hfill\textbf{\large \classe}\\
-\textbf{\large \nomB}\\
 
-\vspace{8\baselineskip}
 
-\begin{center}
-    \textbf{\Huge \cours}\\
-    \vspace{10\baselineskip}
-     \textbf{\Huge \titre}\\
-     \vspace{10\baselineskip}
-     \textbf{\large Encadré par M. Laurent NONY}
-\end{center}
+  \textbf{Votre document devra faire 10 à 15 pages en tout.}
+\end{abstract}
+    
+
+\section{Introduction}
+La théorie des oscillateurs est utile en physique dans de nombreux domaines.En effet beaucoup de phénomènes oscillent. Ainsi on retrouve les méthodes de modélisation liées aux oscillateurs dans différentes disciplines de la physique, comme la physique quantique la mécanique l'électricité, ce modèle s'applique dans beaucoup d'application technique.
+  
+  Nous avons étudié en deuxième année de licence les oscillateurs harmoniques libres, amortie et forcé. C'est tout naturellement que nous nous sommes intéressés aux Oscillateurs non linéaires. Le but de notre projet est de constituer un programme capable de mettre en évidence le phénomène de l'hystérésis propre aux oscillateurs harmonique en régime non linéaire. 
+ 
+  
+  Dans cette optique nous allons dans un premier temps présenter dans la premiére grande section de ce rapport "Oscillateur harmpnique en régime linéair" deux résultats dans des cas linéaires. Une réponse impulsionnelle de notre oscillateur puis une réponse harmonique. Alors nous décrirons comment on s'y est pris dans la sous partie "méthode et présentation des résultats" puis  nous confronterons nos resultat à a nos calcul fait a la main pour prouver que notre modèle fonctionne dans la seconde sous partie "validation". 
+  
+  Dans un second temps nous allons dans la deuxieme grande partie de ce rapport "Oscillateur harmonique en régime non-linéair" nous présenterons notre travail pour des réponses en régime non linéaire.Dans une première sous section "méthode et présentation des résultats " notre méthode pour coder les force non linéaire de Dufing puis de Wan der Walls et nous présenterons une hystérésis deux fois, une pour chaque force d'interaction non linéaire avec lequel nous avons testé notre code dans une seconde sous section "Hystérésys".
+  
+  Enfin dans la 3eme grande partie de notre rapport, nous présenterons notre travail sur la phase des oscillateurs non linéaire. Et nous conclurons.
+  
+  \cite{petit_ondes_1992}. 
+En fin d'introduction, on présentera rapidement chaque section du document.
 
 \newpage
+\section{Oscillateur harmonique en régime linéair}
+\subsection{méthode et présentation des résultats}
 
-\large \tableofcontents
+\subsection{Validations}
+
+ Pour montrer que nos resultats et donc notre modèle est Valide, nous allons nous intérésser au cas d'un systeme masse ressort à la vertical ( mettre graphyque de https://fr.wikibooks.org/wiki/LaTeX/Écrire_des_mathématiques).
+ 
+ Avec : ( ecrire les force etc)
+ Aprés avoir appliqué le produit fondamental de la dynamoique on obient l'équation differnetielle suivante : 
+ 
+ \[
+    \overset{..}{x}-\alpha\overset{.}{x}/m{x}+Kx/m = \omega z_{eq}
+ \]
+ 
+ 
+
 
 \newpage
+\section{Oscillateur harmonique en régime non-linéair}
+\subsection{méthode et présentation des résultats}
 
-    \section{Introduction}
-    La théorie des oscillateurs est utile en physique dans de nombreux domaines. En effet beaucoup de phénomènes oscillent. Ainsi on retrouve les méthodes de modélisation liées aux oscillateurs dans différentes discipline physique, comme la physique quantique la mécanique l'électricité, ce modèle s'applique dans beaucoup d'application technique. Nous avons étudié en deuxième année de licence les oscillateurs harmoniques libres, amortie et forcé. C'est tout naturellement que nous nous sommes intéressés aux Oscillateurs non linéaires. Le but de notre projet est de constitué un programme capable de metre en évidence le phénomène de l'hystérésis propre aux oscillateurs harmonique en régime non linéaire. Dans cette optique nous allons dans un premier temps présenter deux résultats simples, une réponse impulsionnelle de notre oscillateur puis une réponse harmonique. Puis nous présenterons notre travail pour des réponses en régime non linéaire et nous présenterons un hystérésis deux fois, une pour chaque force d'interaction non linéaire avec lequel nous avons testé notre code.
+\subsection{Hystérésys}
 
-    
-    
-    \newpage
-    \section{Etude théorique et démonstrations}
-    
-    \newpage
-    \section{fonctions et principe de départ}
-        \subsection{force ,energie,intégration}
-        \subsection{fonction oscillation et amplitudes(méthode dérivé nul)}
-        
-        
-        
-    \newpage
-    \section{réponse impulsionnelle}
-        \subsection{présentation des résultats}
-        
-        
-        
-    \newpage
-    \section{réponse harmonique}
-        \subsection{présentation des résultats}
-        
-        
-    \newpage    
-    \section{réponse non linéaire}
-        \subsection{présentation des résultats}
-        \subsection{un mot sur le facteur de qualité}
-        \subsection{présentation des résultats}
-    
-    \newpage
-    \section{réponse non linéaire, balayage des fréquences a l'envers}
-        \subsection{présentation des résultats}
-        \subsection{mise en lumiere de Lysterésis} 
-        
-    
-        
-        
-        
-    \newpage    
-    \section{Conclusion}
+\newpage
+\section{Etude de la phase}
+
+
+Décrire la méthode utilisée, en particulier:
+\begin{itemize}
+  \item Quel cadre, quels approximations sont faites, quels équations on cherche à résoudre numériquement? 
+        Les \textbf{équations} importantes seront numérotées et référencées dans le corps du texte. Par exemple, 
+        on rappelle en équation~\ref{eq:snell} la loi de Snell-Descartes:
+        \begin{equation}\label{eq:snell}
+            n_1\,\mathsf{sin}(i_1)=n_2\,\mathsf{sin}(i_2),
+        \end{equation}
+        où $n_1$, $n_2$, $i_1$ et $i_2$ sont définis en figure~\ref{fig:schema}.
+        En effet, un schéma semble ici approprié pour décrire 
+        chaque quantité présente dans l'équation précédente -- une simple phrase suffit parfois.
+        Pour faire vos schémas, le logiciel libre de dessin vectoriel Inkscape est une bonne solution.
+        Un exemple est donné dans ce dossier ({\tt exemple\_schema.svg}) et permet de générer 
+        la figure~\ref{fig:schema}.
+        \begin{figure}[h!]\centering
+          \includegraphics[width=.4\textwidth]{exemple_schema.pdf}
+          \caption{Schéma d'une interface séparant deux milieux d'indice optique $n_1$ et $n_2$.
+          Ce schéma et les notations illustrent la loi de Snell-Descartes rappelée en équation~\ref{eq:snell}.}
+          \label{fig:schema}
+        \end{figure}
+  \item Quel modèle est utilisé pour obtenir une solution numérique des équations détaillées précédemment.
+  \item \'Eventuellement une description de l'algorithme utilisé (pseudo-code).
+\end{itemize}
 
 
 
+\section{Validation}
+Il faut s'assurer de la validité du modèle numérique développé. On comparera les résultats obtenus
+avec son code à une solution analytique ou à des résultats de la littérature.
+Pour toute méthode non analytique, une étude de convergence est attendue.
 
-olution to record, convert and stream audio and video. 
+Cette section contiendra vraisemblablement des \textbf{figures}. Les figures devront respecter les caractéristiques suivantes.
+Une figure est toujours référencée et décrite dans le corps du texte. Par exemple, la figure~\ref{fig:courbes} montre la courbe 
+représentative de la fonction définie par $f(x)=x^2$ et celle de sa dérivée définie par $f'(x)=2x$ sur l'intervalle $[0,2.5]$.
+Pour vous, auteur, cela peut para\^itre lourd et redondant, mais cela permet au lecteur de suivre votre raisonnement.
+Une figure seule, c'est-à-dire sans légende, non commentée dans le texte n'a strictement aucune utilité. Il en va de m\^eme 
+pour les \textbf{tableaux}.
 
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{exemple_figure.pdf}
+  \caption{Courbe représentative de la fonction $f$ définie par $f(x)=x^2$ (en bleu) et de sa dérivée définie par 
+  $f'(x)=2x$ (en jaune). Si cela est opportun, décrire les libellés des axes: telle quantité est représentée en 
+  fonction de telle quantité, avec les unités).}
+  \label{fig:courbes}
+\end{figure}
+Vous devrez rendre les scripts python (les fichiers {\tt.py}) qui vous ont permis d'obtenir les résultats de ce rapport. Il est donc 
+inutile de copier-coller tout votre code dans le rapport. En revanche, il est parfois utile d'écrire un bout de code 
+pour illustrer tel ou tel algorithme ou subtilité. Comme pour les figures et les équations, le code doit être référencé et
+commenté dans le corps de votre rapport. Par exemple, le listing~\ref{code1} permet de générer la figure~\ref{fig:courbes}.
 
+\lstinputlisting[language=Python,caption={Code permettant de générer la figure~\ref{fig:courbes}},label=code1]{exemple_figure.py}
 
+\section{Applications}
+Répondre aux problématiques de votre projet.
 
+\section{Conclusion}
+La conclusion est le miroir de votre intro. On rappellera les principaux résultats pour chaque section.
+On cherchera ensuite à remettre l'étude son cadre général et à ouvrir sur des perspectives. Il est en effet
+probable que vous ayez envie de rajouter des éléments et fonctionnalités à votre code, c'est ici qu'il convient 
+de les lister.
 
-
-
-
-
-
+\medskip
+\bibliographystyle{unsrt}
+\bibliography{biblio}
+https://mchampion.fr/cours/S4%20-%20Oscillateurs%20amortis.pdf
+https://fr.wikibooks.org/wiki/LaTeX/Écrire_des_mathématiques
 \end{document}
+
