@@ -50,7 +50,7 @@ backgroundcolor=\color{gray!5}
 \begin{document}
 \maketitle
 \begin{abstract}
-  Ce rapport à pour but de présenter notre modèle capable de prédire les réponses de plusieurs oscillateurs.
+  Ce rapport à pour but de présenter notre modèle qui est capable de prédire les réponses de plusieurs oscillateurs.
   
   Et de présenter nos résultats pour : 
   
@@ -82,18 +82,62 @@ La théorie des oscillateurs est utile en physique dans de nombreux domaines.En 
 En fin d'introduction, on présentera rapidement chaque section du document.
 
 \newpage
-\section{Oscillateur harmonique en régime linéair}
+\section{Oscillateur harmonique en régime linéaire}
+    
 \subsection{méthode et présentation des résultats}
+
+Pour mettre a l'épreuve notre code nous allons modéliser cas que l'on connais bien. Le cas d'une réponse impulsionnelle et le cas d'un oscillateur forcé. Pour cela nous avons utiliser la méthode d'intégration de runge-kutta 4 pour definir les oscillations et l'amplitude de notre système. Nous obtenons les courbes suivante :
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{figure_1.png}
+  \caption{Courbe du haut : évolution des oscillations en fonction du temps dans le cas d'une impulsion (mesure de la réponse impulsionnelle) 
+  figure du haut : évolution des oscillations en fonction du temps dans le cas d'une excitation constante( f0 = 10Hz)
+  }
+  \label{fig:courbes}
+\end{figure}
+
+
+
 
 \subsection{Validations}
 
- Pour montrer que nos resultats et donc notre modèle est Valide, nous allons nous intérésser au cas d'un systeme masse ressort à la vertical ( mettre graphyque de https://fr.wikibooks.org/wiki/LaTeX/Écrire_des_mathématiques).
+ Pour montrer que nos resultats et donc notre modèle est Valide, nous allons nous intérésser au cas d'un systeme masse ressort à la vertical ( ).
  
- Avec : ( ecrire les force etc)
+ Avec :
+ \[
+ 
+    Le poid : \vec{P} = mgz(t)\vec{y}  
+    
+    avec m la masse et g la constante gravitationnelle terestre 
+    
+    
+    la Tension du ressort : \vec{T} = -k(z(t)-l0)\vec{y} 
+
+    avec k la constante de raideurs du ressort et l0 la longeur a vide du ressort  
+    
+    
+    La force de frottement \vec{Fr} = \alpha\overset{.}{z(t)} 
+    
+    avec \alpha le coefficient de frottement 
+ 
+ \]
+ 
+
  Aprés avoir appliqué le produit fondamental de la dynamoique on obient l'équation differnetielle suivante : 
  
  \[
-    \overset{..}{x}-\alpha\overset{.}{x}/m{x}+Kx/m = \omega z_{eq}
+    $$\ddot  x -\alpha\overset{.}{x}/m{x}+Kx/m = K/m z_{eq}$$
+    
+    On pose $ \frac{W_0}{Q_0}Q_0 = \alpha/m et {W0^2} = K/m $ 
+    
+    avec W0 : la pulsation et Q0 le facteur de qualité. On obtien bien l'équation canonique pour oscillateurs amorties :
+    
+    
+    \overset{..}{x}-W0\overset{.}{x}/Q0{x}+W0^2x = W0 z_{eq}
+    
+    
+    on pose Q0 > 1/2 pour etre dans le régime pseudo-périodique, qui d'un point de vue mécanique represente notre programme on obtient bien apres résolution de l'équation harmonique quelque chose qui à la meme forme. 
+    
+    
  \]
  
  
