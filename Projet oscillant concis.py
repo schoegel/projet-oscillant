@@ -312,6 +312,8 @@ plt.show()
 
 ### Marge d'erreur et precision du modele
 
+# Comparaison de la détection synchrone et modèle théorique
+
 pourcentage = 1
 erreur_ampli = []
 C = 0
@@ -325,7 +327,7 @@ for j in range(len(erreur_ampli)):
 
 ratio = C/len(erreur_ampli)*100
 
-print(ratio, '% des points sont à', pourcentage, '% ou moins de la valeur théorique' )
+print(ratio, '% des points par détection synchrone sont à', pourcentage, '% ou moins de la valeur théorique' )
 
 enveloppe_1 = [i*(1+pourcentage/100) for i in Ampli_theorique]
 enveloppe_2 = [i*(1-pourcentage/100) for i in Ampli_theorique]
@@ -333,11 +335,12 @@ enveloppe_2 = [i*(1-pourcentage/100) for i in Ampli_theorique]
 
 var = np.sqrt(np.average([i**2 for i in erreur_ampli]))
 
-
-
+# Comparaison de la méthode des dérivées et modèle théorique
 
 pourcentage_2 = 1
+
 erreur_ampli_2 = []
+
 C_2 = 0
 
 for i in range(len(z_amp_lineaire)):
@@ -349,14 +352,18 @@ for j in range(len(erreur_ampli_2)):
 
 ratio_2 = C_2/len(erreur_ampli_2)*100
 
-print(ratio_2, '% des points sont à', pourcentage_2, '% ou moins de la valeur théorique' )
+print(ratio_2, '% des points par la méthode des dérivées sont à', pourcentage_2, '% ou moins de la valeur théorique' )
 
+var_2 = np.sqrt(np.average([i**2 for i in erreur_ampli_2]))
+
+
+# plots des différents modèles et comparaison
 
 plt.figure(5)
 
 
 plt.subplot(1,2,1)
-plt.plot(tab_f,enveloppe_1,color = 'k', label = 'Enveloppe à 10% autour de la valeur théorique')
+plt.plot(tab_f,enveloppe_1,color = 'k', label = 'Enveloppe à 1% autour de la valeur théorique')
 plt.plot(tab_f,enveloppe_2, color = 'k')
 plt.plot(f_lockin,Ampli_lockin, color = 'orangered', label = 'Amplitude par détection synchrone')
 plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue', label = 'Amplitude par méthode des dérivées')
@@ -364,35 +371,36 @@ plt.xlabel('Fréquence en Hz')
 plt.ylabel('Amplitude en m')
 plt.legend()
 plt.grid()
+plt.title('Comparaison des différents modèles à la valeur théorique')
 
 
 plt.subplot(3,2,2)
 plt.xlim(1, 2)
 plt.ylim(1.92e-10, 2.15e-10)
-plt.plot(tab_f,enveloppe_1,color = 'k', label = 'Enveloppe à 10% autour de la valeur théorique')
+plt.plot(tab_f,enveloppe_1,color = 'k')
 plt.plot(tab_f,enveloppe_2, color = 'k')
-plt.plot(f_lockin,Ampli_lockin, color = 'orangered', label = 'Amplitude par détection synchrone')
-plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue', label = 'Amplitude par méthode des dérivées')
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered')
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue')
 plt.grid()
 
 
 plt.subplot(3,2,4)
 plt.xlim(9.85, 10)
 plt.ylim(0.99e-9, 1.02e-9)
-plt.plot(tab_f,enveloppe_1,color = 'k', label = 'Enveloppe à 10% autour de la valeur théorique')
+plt.plot(tab_f,enveloppe_1,color = 'k')
 plt.plot(tab_f,enveloppe_2, color = 'k')
-plt.plot(f_lockin,Ampli_lockin, color = 'orangered', label = 'Amplitude par détection synchrone')
-plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue', label = 'Amplitude par méthode des dérivées')
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered')
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue')
 plt.grid()
 
 
 plt.subplot(3,2,6)
 plt.xlim(19.5, 20)
 plt.ylim(0.65e-10, 0.725e-10)
-plt.plot(tab_f,enveloppe_1,color = 'k', label = 'Enveloppe à 10% autour de la valeur théorique')
+plt.plot(tab_f,enveloppe_1,color = 'k')
 plt.plot(tab_f,enveloppe_2, color = 'k')
-plt.plot(f_lockin,Ampli_lockin, color = 'orangered', label = 'Amplitude par détection synchrone')
-plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue', label = 'Amplitude par méthode des dérivées')
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered')
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue')
 plt.grid()
 
 plt.show()
