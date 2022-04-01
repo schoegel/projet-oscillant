@@ -21,7 +21,7 @@ A0 = 1e-9
 
 fs = 40. * f0
 
-Tw = 180
+Tw = 120
 
 Ts = 1./fs
 
@@ -37,27 +37,27 @@ f_down_normalise = [f/f0 for f in np.linspace(2*f0,0,N)]
 
 tab_t = np.linspace(0,Tw,N)
 
-B = -10**19
+B = -10**19         # Coefficient Beta de l'interaction non lineaire de l'effet Duffing
 
-d = 3*10**-10
+d = 3*10**-10       # Distance caractéristique de l'intéraction de Van der Waals
  
-A = 3*10**-28 
+A = 3*10**-28       # Coefficient Alpha de l'interaction de Van der Waals
  
 ###############################################################################
 
 ### Definition des fonctions utilisees pour l'integration de l'eq. diff, calcul des oscillations, amplitude, et phase
 
-def Force(t,z,Aexc,fexc,B, sens='croissant', A=0): # Fonction de la force totale agissant sur l'oscillateur qui peut dependre de plusieurs parametres
-
-    if sens == 'croissant':
-        Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*t) # force d'excitation harmonique
+def Force(t, z, Aexc, fexc, Beta, sens='croissant', Alpha=0):   # Fonction de la force totale agissant sur l'oscillateur qui peut dependre de plusieurs 
+                                                                # parametres
+    if sens == 'croissant':                                     
+        Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*t) # force d'interaction harmonique
         
     if sens == 'decroissant':
         Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*(Tw-t))
         
-    Fnl = B*z**3 # force d'excitation non lineaire en Beta = B
+    Fnl = Beta*z**3 ##= force d'interaction non lineaire correspondant à l'effet Duffing
     
-    Fnl2 = -A/((d+A0+z)**2) # force d'excitation non lineaire en Alpha = A
+    Fnl2 = -Alpha/((d+A0+z)**2) # force d'interaction non lineaire de Van der Waals
     
     F_tot = Fexc + Fnl + Fnl2
     
@@ -65,24 +65,24 @@ def Force(t,z,Aexc,fexc,B, sens='croissant', A=0): # Fonction de la force totale
     
     
 
-def E(t,z,zp,Aexc,fexc,B, sens='croissant',A=0): # Fonction E de RK4
-    return ((w0**2/k0)*Force(t,z,Aexc,fexc,B,sens,A)-(w0/Q0)*zp-w0**2*z)
+def E(t, z, zp, Aexc, fexc, Beta, sens='croissant',Alpha=0): # E est l'expression de z" en fonction des autres variables du système
+    return ((w0**2/k0)*Force(t,z,Aexc,fexc,Beta,sens,Alpha)-(w0/Q0)*zp-w0**2*z)
 
  
  
 
-def RK4(t,z,zp,Aexc,fexc,B, sens='croissant',A=0): # Algorithme de RK4
+def RK4(t,z,zp,Aexc,fexc,Beta, sens='croissant',Alpha=0): # Algorithme de RK4
     k1 = Ts*zp
-    l1 = Ts*E(t,z,zp,Aexc,fexc,B,sens,A)
+    l1 = Ts*E(t,z,zp,Aexc,fexc,Beta,sens,Alpha)
     
     k2 = Ts*(zp + l1/2)
-    l2 = Ts*E(t + Ts/2, z+k1/2, zp + l1/2, Aexc, fexc,B,sens,A)
+    l2 = Ts*E(t + Ts/2, z+k1/2, zp + l1/2, Aexc, fexc,Beta,sens,Alpha)
      
     k3 = Ts*(zp + l2/2)
-    l3 = Ts*E(t+Ts/2, z+k2/2, zp+l2/2, Aexc ,fexc,B,sens,A)
+    l3 = Ts*E(t+Ts/2, z+k2/2, zp+l2/2, Aexc ,fexc,Beta,sens,Alpha)
     
     k4 = Ts*(zp + l3)
-    l4 = Ts*E(t+Ts, z+k3, zp+l3, Aexc, fexc,B,sens,A)
+    l4 = Ts*E(t+Ts, z+k3, zp+l3, Aexc, fexc,Beta,sens,Alpha)
     
     q1 = (k1+2*k2+2*k3+k4)/6
     q2 = (l1+2*l2+2*l3+l4)/6
@@ -90,73 +90,73 @@ def RK4(t,z,zp,Aexc,fexc,B, sens='croissant',A=0): # Algorithme de RK4
     return([z+q1,zp+q2])
 
 
-def Oscillations(Aexc,fexc,B, sens='croissant',A=0):
-    t = 0.
-    z = 0.    
+def Oscillations(Aexc,fexc,Beta, sens='croissant',Alpha=0):     # Cette fonction nous permet d'automatiser l'intégration des oscillations 
+    t = 0.                                                      #  à partir d'une excitation, d'une force d'interaction non lineaire
+    z = 0.                                                      #  et du sens de balayage
     zp= 1e-11
     tab_t = [t]
     tab_z = [z]
     tab_zp= [zp]
-    if type(fexc)!=np.ndarray:  # On teste si la frequence est une seule valeur (frequence d'excitation constante)
-        for i in range(N-1):    #  ou si la frequence est sous forme de tableau et donc variable (wobulation)
-            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,B,sens,A)[0])
-            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,B,sens,A)[1])
+    if type(fexc)!=np.ndarray:              # On teste si la frequence est une seule valeur (frequence d'excitation constante)
+        for i in range(N-1):                #  ou si la frequence est sous forme de tableau et donc variable (wobulation)
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,Beta,sens,Alpha)[0])
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,Beta,sens,Alpha)[1])
             t = t+Ts
             tab_t.append(t)
     else:
         for i in range(N-1):
-            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,B,sens,A)[0])
-            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,B,sens,A)[1])
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[0])
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[1])
             t = t+Ts
             tab_t.append(t)
     return(tab_z,tab_zp)
 
 
-def amp(B,f, sens='croissant',A=0):
-    z=Oscillations(A0/Q0,f,B,sens,A)[0]
-    zp=Oscillations(A0/Q0,f,B,sens,A)[1]
+def amp(Beta,f, sens='croissant',Alpha=0):
+    z=Oscillations(A0/Q0,f,Beta,sens,Alpha)[0]
+    zp=Oscillations(A0/Q0,f,Beta,sens,Alpha)[1]
     f_amp=[]
     amp=[]
     for i in range(len(zp)):
-        if zp[i]*zp[i-1]<=0 and zp[i]<=zp[i-1]:
-            amp.append(max(z[i],z[i-1]))
+        if zp[i]*zp[i-1]<=0 and zp[i]<=zp[i-1]:         # On identifie l'abcisse de chaque zeros (ou changement de signe) de la dérivée de z, 
+            amp.append(max(z[i],z[i-1]))                # ce qui permet d'identifier l'abcisse de chaque sommet et donc d'obtenir l'amplitude
             f_amp.append(f[i])
     return(amp,f_amp)
     
     
 ### Calculs de différentes oscillations et amplitudes
     
-z_sans_excitation = Oscillations(0,0,0)[0] 
-z_avec_excitation = Oscillations(A0/Q0,f0,0)[0]   
+z_sans_excitation = Oscillations(0,0,0)[0]             
+z_avec_excitation = Oscillations(A0/Q0,f0,0)[0]     
     
 
-z_lineaire = Oscillations(A0/Q0,tab_f,0)[0]
+z_lineaire = Oscillations(A0/Q0,tab_f,0)[0]          
 zp_lineaire = Oscillations(A0/Q0,tab_f,0)[1]
-z_amp_lineaire = amp(0,tab_f)[0]
-f_amp_lineaire = amp(0,tab_f)[1]
+z_amp_lineaire = amp(0,tab_f)[0]                       
+f_amp_lineaire = amp(0,tab_f)[1]                      
 
 
 z_non_lineaire_1 = Oscillations(A0/Q0,tab_f,B)[0]
-z_amp_non_lineaire_1 = amp(B,tab_f)[0]
-f_amp_non_lineaire_1 = amp(B,tab_f)[1]
+z_amp_non_lineaire_1 = amp(Beta,tab_f)[0]
+f_amp_non_lineaire_1 = amp(Beta,tab_f)[1]
 
 
 z_non_lineaire_2 = Oscillations(A0/Q0,tab_f,-B)[0]
-z_amp_non_lineaire_2 = amp(-B,tab_f)[0]
-f_amp_non_lineaire_2 = amp(-B,tab_f)[1]
+z_amp_non_lineaire_2 = amp(-Beta,tab_f)[0]
+f_amp_non_lineaire_2 = amp(-Beta,tab_f)[1]
 
 
-z_amp_non_lineaire_1_down = amp(B,f_down,sens='decroissant')[0]
-f_amp_non_lineaire_1_down = amp(B,f_down,sens='decroissant')[1]
+z_amp_non_lineaire_1_down = amp(Beta,f_down,sens='decroissant')[0]
+f_amp_non_lineaire_1_down = amp(Beta,f_down,sens='decroissant')[1]
 
 
-z_non_lineaire_3 = Oscillations(A0/Q0,tab_f,0,A=A)[0]
-z_amp_non_lineaire_3 = amp(0,tab_f,A=A)[0]
-f_amp_non_lineaire_3 = amp(0,tab_f,A=A)[1]
+z_non_lineaire_3 = Oscillations(A0/Q0,tab_f,0,Alpha=A)[0]
+z_amp_non_lineaire_3 = amp(0,tab_f,Alpha=A)[0]
+f_amp_non_lineaire_3 = amp(0,tab_f,Alpha=A)[1]
 
 
-z_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',A=A)[0]
-f_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',A=A)[1]
+z_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',Alpha=A)[0]
+f_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',Alpha=A)[1]
     
 ########## Plots
 
