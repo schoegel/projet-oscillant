@@ -37,11 +37,11 @@ f_down_normalise = [f/f0 for f in np.linspace(2*f0,0,N)]
 
 tab_t = np.linspace(0,Tw,N)
 
-B = -10**19         # Coefficient Beta de l'interaction non lineaire de l'effet Duffing
+Beta = -10**19         # Coefficient Beta de l'interaction non lineaire de l'effet Duffing
 
 d = 3*10**-10       # Distance caractéristique de l'intéraction de Van der Waals
  
-A = 3*10**-28       # Coefficient Alpha de l'interaction de Van der Waals
+Alpha = 3*10**-28       # Coefficient Alpha de l'interaction de Van der Waals
  
 ###############################################################################
 
