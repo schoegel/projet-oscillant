@@ -37,11 +37,11 @@ f_down_normalise = [f/f0 for f in np.linspace(2*f0,0,N)]
 
 tab_t = np.linspace(0,Tw,N)
 
-B = -10**19         # Coefficient Beta de l'interaction non lineaire de l'effet Duffing
+Beta = -10**19         # Coefficient Beta de l'interaction non lineaire de l'effet Duffing
 
 d = 3*10**-10       # Distance caractéristique de l'intéraction de Van der Waals
  
-A = 3*10**-28       # Coefficient Alpha de l'interaction de Van der Waals
+Alpha = 3*10**-28       # Coefficient Alpha de l'interaction de Van der Waals
  
 ###############################################################################
 
@@ -105,23 +105,23 @@ def Oscillations(Aexc,fexc,Beta, sens='croissant',Alpha=0):     # Cette fonction
             tab_t.append(t)
     else:
         for i in range(N-1):
-            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[0])
-            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[1])
-            t = t+Ts
-            tab_t.append(t)
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[0]) #remplie le tableau des psoition eb fonction des données initiales 
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[1]) #remplie le tableau des vitesse 
+            t = t+Ts                                                                    #dans ls cas d'un balayage en fréquence décroissante l'exprerssion du temps est modifié
+            tab_t.append(t)                                                             #remplie le tableau du temps
     return(tab_z,tab_zp)
 
 
-def amp(Beta,f, sens='croissant',Alpha=0):
-    z=Oscillations(A0/Q0,f,Beta,sens,Alpha)[0]
-    zp=Oscillations(A0/Q0,f,Beta,sens,Alpha)[1]
-    f_amp=[]
-    amp=[]
-    for i in range(len(zp)):
+def amp(Beta,f, sens='croissant',Alpha=0):              #nous permet d'optenir l'amplitude des oscillations
+    z=Oscillations(A0/Q0,f,Beta,sens,Alpha)[0]          #le mouvement
+    zp=Oscillations(A0/Q0,f,Beta,sens,Alpha)[1]         #la vitesse dérivé du mouvement 
+    f_amp=[]                                            #tableau de la frequence d'amplitude 
+    amp=[]                                              #future tableau d'amplitude 
+    for i in range(len(zp)):                            #boucle sur l'enselble des dérivé existante
         if zp[i]*zp[i-1]<=0 and zp[i]<=zp[i-1]:         # On identifie l'abcisse de chaque zeros (ou changement de signe) de la dérivée de z, 
             amp.append(max(z[i],z[i-1]))                # ce qui permet d'identifier l'abcisse de chaque sommet et donc d'obtenir l'amplitude
-            f_amp.append(f[i])
-    return(amp,f_amp)
+            f_amp.append(f[i])                          #fréquence des amplitudes
+    return(amp,f_amp)                                   #remvoi les amplitudes et les fréquences d'emplitudes
     
     
 ### Calculs de différentes oscillations et amplitudes
@@ -136,12 +136,12 @@ z_amp_lineaire = amp(0,tab_f)[0]
 f_amp_lineaire = amp(0,tab_f)[1]                      
 
 
-z_non_lineaire_1 = Oscillations(A0/Q0,tab_f,B)[0]
+z_non_lineaire_1 = Oscillations(A0/Q0,tab_f,Beta)[0]
 z_amp_non_lineaire_1 = amp(Beta,tab_f)[0]
 f_amp_non_lineaire_1 = amp(Beta,tab_f)[1]
 
 
-z_non_lineaire_2 = Oscillations(A0/Q0,tab_f,-B)[0]
+z_non_lineaire_2 = Oscillations(A0/Q0,tab_f,-Beta)[0]
 z_amp_non_lineaire_2 = amp(-Beta,tab_f)[0]
 f_amp_non_lineaire_2 = amp(-Beta,tab_f)[1]
 
@@ -150,13 +150,13 @@ z_amp_non_lineaire_1_down = amp(Beta,f_down,sens='decroissant')[0]
 f_amp_non_lineaire_1_down = amp(Beta,f_down,sens='decroissant')[1]
 
 
-z_non_lineaire_3 = Oscillations(A0/Q0,tab_f,0,Alpha=A)[0]
-z_amp_non_lineaire_3 = amp(0,tab_f,Alpha=A)[0]
-f_amp_non_lineaire_3 = amp(0,tab_f,Alpha=A)[1]
+z_non_lineaire_3 = Oscillations(A0/Q0,tab_f,0,Alpha=Alpha)[0]
+z_amp_non_lineaire_3 = amp(0,tab_f,Alpha=Alpha)[0]
+f_amp_non_lineaire_3 = amp(0,tab_f,Alpha=Alpha)[1]
 
 
-z_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',Alpha=A)[0]
-f_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',Alpha=A)[1]
+z_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',Alpha=Alpha)[0]
+f_amp_non_lineaire_3_down = amp(0,f_down,sens='decroissant',Alpha=Alpha)[1]
     
 ########## Plots
 
