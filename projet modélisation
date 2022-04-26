@@ -1,0 +1,460 @@
+from scipy.integrate import ode
+
+import numpy as np
+
+import matplotlib.pylab as plt
+
+
+###############################################################################
+
+### Variables
+
+f0 = 10          #fréquence fondamentale
+
+w0 = 2.*np.pi*f0 #pulsation fondamentale
+
+Q0 = 5           #facteur de qualité 
+
+k0 = 20.         #constante de raideur 
+
+A0 = 1e-9        #Amplitude fondamental
+
+fs = 40. * f0    #fréquence
+
+Tw = 120         #période de pulsation
+
+Ts = 1./fs       #période 
+
+N = int(Tw/Ts)   #nombre d'intervales
+
+tab_f = np.linspace(0,2*f0,N)                           #tableau de fréquence croissant
+
+f_down = np.linspace(2*f0,0,N)                          #tableau de fréquence décroissant
+
+tab_f_normalise = [f/f0 for f in np.linspace(0,2*f0,N)] #tableau de fréquence normalisé croissant
+
+f_down_normalise = [f/f0 for f in np.linspace(2*f0,0,N)] #tableau de fréquence normalisé décroissant
+
+tab_t = np.linspace(0,Tw,N) #le tableau de temps
+
+Beta = -10**19         # Coefficient Beta de l'interaction non lineaire de l'effet Duffing
+
+d = 3*10**-10          # Distance caractéristique de l'intéraction de Van der Waals
+ 
+Alpha = 3*10**-28      # Coefficient Alpha de l'interaction de Van der Waals
+ 
+###############################################################################
+
+### Definition des fonctions utilisees pour l'integration de l'eq. diff, calcul des oscillations, amplitude, et phase
+
+def Force(t, z, Aexc, fexc, Beta, sens='croissant', Alpha=0):   # Fonction de la force totale agissant sur l'oscillateur qui peut dependre de plusieurs 
+                                                                # parametres
+    if sens == 'croissant':                                     
+        Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*t) # force d'interaction harmonique
+        
+    if sens == 'decroissant':#la comparaison des amplitudes dans les deux sens fait apparaitre l'hysteris
+        Fexc = k0*Aexc*np.cos(2.*np.pi*fexc*(Tw-t))
+        
+    Fnl = Beta*z**3 # force d'interaction non lineaire de Duffing
+    
+    Fnl2 = -Alpha/((d+A0+z)**2) # force d'interaction non lineaire de Van der Waals
+    
+    F_tot = Fexc + Fnl + Fnl2 #calcul final de la force
+    
+    return F_tot
+    
+    
+
+def E(t, z, zp, Aexc, fexc, Beta, sens='croissant',Alpha=0): # E est l'expression de z" en fonction des autres variables du système
+    return ((w0**2/k0)*Force(t,z,Aexc,fexc,Beta,sens,Alpha)-(w0/Q0)*zp-w0**2*z)
+
+ 
+ 
+
+def RK4(t,z,zp,Aexc,fexc,Beta, sens='croissant',Alpha=0): # Algorithme de RK4
+    k1 = Ts*zp
+    l1 = Ts*E(t,z,zp,Aexc,fexc,Beta,sens,Alpha)
+    
+    k2 = Ts*(zp + l1/2)
+    l2 = Ts*E(t + Ts/2, z+k1/2, zp + l1/2, Aexc, fexc,Beta,sens,Alpha)
+     
+    k3 = Ts*(zp + l2/2)
+    l3 = Ts*E(t+Ts/2, z+k2/2, zp+l2/2, Aexc ,fexc,Beta,sens,Alpha)
+    
+    k4 = Ts*(zp + l3)
+    l4 = Ts*E(t+Ts, z+k3, zp+l3, Aexc, fexc,Beta,sens,Alpha)
+    
+    q1 = (k1+2*k2+2*k3+k4)/6
+    q2 = (l1+2*l2+2*l3+l4)/6
+    
+    return([z+q1,zp+q2])
+
+
+def Oscillations(Aexc,fexc,Beta, sens='croissant',Alpha=0):     # Cette fonction nous permet d'automatiser l'intégration des oscillations 
+    t = 0.                                                      #  à partir d'une excitation, d'une force d'interaction non lineaire
+    z = 0.                                                      #  et du sens de balayage
+    zp= 1e-11
+    tab_t = [t]
+    tab_z = [z]
+    tab_zp= [zp]
+    if type(fexc)!=np.ndarray:              # On teste si la frequence est une seule valeur (frequence d'excitation constante)
+        for i in range(N-1):                #  ou si la frequence est sous forme de tableau et donc variable (wobulation)
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,Beta,sens,Alpha)[0])
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc,fexc,Beta,sens,Alpha)[1])
+            t = t+Ts
+            tab_t.append(t)
+    else:
+        for i in range(N-1):
+            tab_z.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[0]) #remplie le tableau des psoition eb fonction des données initiales 
+            tab_zp.append(RK4(t,tab_z[i],tab_zp[i], Aexc, fexc[i]/2,Beta,sens,Alpha)[1]) #remplie le tableau des vitesse 
+            t = t+Ts                                                                    #dans ls cas d'un balayage en fréquence décroissante l'exprerssion du temps est modifié
+            tab_t.append(t)                                                             #remplie le tableau du temps
+    return(tab_z,tab_zp)
+
+
+def amp(Beta,f, sens='croissant',Alpha=0):              #nous permet d'optenir l'amplitude des oscillations
+    z=Oscillations(A0/Q0,f,Beta,sens,Alpha)[0]          #le mouvement
+    zp=Oscillations(A0/Q0,f,Beta,sens,Alpha)[1]         #la vitesse dérivé du mouvement 
+    f_amp=[]                                            #tableau de la frequence d'amplitude 
+    amp=[]                                              #future tableau d'amplitude 
+    for i in range(len(zp)):                            #boucle sur l'enselble des dérivé existante
+        if zp[i]*zp[i-1]<=0 and zp[i]<=zp[i-1]:         # On identifie l'abcisse de chaque zeros (ou changement de signe) de la dérivée de z, 
+            amp.append(max(z[i],z[i-1]))                # ce qui permet d'identifier l'abcisse de chaque sommet et donc d'obtenir l'amplitude
+            f_amp.append(f[i])                          #fréquence des amplitudes
+    return(amp,f_amp)                                   #remvoi les amplitudes et les fréquences d'emplitudes
+    
+    
+
+
+### Oscillations linéaires sans excitation et avec excitation constante
+
+    
+z_impulsionnelle = Oscillations(0,0,0)[0]             #reponse impulsionnelle
+z_forcé = Oscillations(A0/Q0,f0,0)[0]                 #reponse forcée (exitation constance f0)
+    
+
+z_lineaire = Oscillations(A0/Q0,tab_f,0)[0]     #réponse linéaire dans le cas d'une force harmonque    
+zp_lineaire = Oscillations(A0/Q0,tab_f,0)[1]    #dérivé dans le cas d'une force harmonque  
+z_amp_lineaire = amp(0,tab_f)[0]                #amplitude dans le cas d'une force harmonque                 
+f_amp_lineaire = amp(0,tab_f)[1]                #fréquance d'amplitude dans le cas d'une force harmonque                  
+
+### Oscillations, amplitude et mise en évidence de l'hystérésis quand le systeme est soumis a des forces non linéaire de Duffing
+
+z_Duf_up = Oscillations(A0/Q0,tab_f,Beta)[0] #Réponse dans le cas d'un balayage en fréquence croissant et des force de Duffing négative
+z_amp_Duf_up = amp(Beta,tab_f)[0]            #amplitude dans le cas d'un balayage en fréquence croissant et des force de Duffing
+f_amp_Duf_up = amp(Beta,tab_f)[1]            #fréquence dans le cas d'un balayage en fréquence croissant et des force de Duffing
+
+z_amp_Duf_down = amp(Beta,f_down,sens='decroissant')[0] #amplitude dans les cas d'un Balayage en fréquence inverse
+f_amp_Duf_down = amp(Beta,f_down,sens='decroissant')[1] #fréquence d'amplitude dans le cas d'un  Balayage en fréquence inverse
+
+
+
+z_Duf_up2 = Oscillations(A0/Q0,tab_f,-Beta)[0] #Réponse dans le cas d'un balayage en fréquence croissant et des force de Duffing positive
+z_amp_Duf_up2 = amp(-Beta,tab_f)[0]            #amplitude dans le cas d'un balayage en fréquence croissant et des force de Duffing positive
+f_amp_Duf_up2 = amp(-Beta,tab_f)[1]            #fréquence dans le cas d'un balayage en fréquence croissant et des force de Duffing positive
+
+### ### ### Oscillations, amplitude et hystérésis avec balayage en fréquence pour force non linéaire réaliste de Van der Waals d'origine dispersive
+
+
+
+z_VDW_up = Oscillations(A0/Q0,tab_f,0,Alpha=Alpha)[0] #Réponse dans le cas d'un balayage en fréquence croissant et des force de Van Der Waals
+z_amp_VDW_up = amp(0,tab_f,Alpha=Alpha)[0]            #amplitude dans le cas d'un balayage en fréquence croissant
+f_amp_VDW_up = amp(0,tab_f,Alpha=Alpha)[1]            #fréquence dans le cas d'un balayage en fréquence croissant
+
+
+z_amp_VDW_down = amp(0,f_down,sens='decroissant',Alpha=Alpha)[0]#Amplitude dans le cas d'un balayage en fréquence décroissant
+f_amp_VDW_down = amp(0,f_down,sens='decroissant',Alpha=Alpha)[1]#fréquence  dans le cas d'un balayage en fréquence croissant
+    
+########## Plots
+
+
+### Oscillations linéaires sans excitation et avec excitation constante
+
+plt.figure(1)#Nous mettrons les deux prochain graph sur la meme figure, c'est deux exemple servant a prouvé la validité du code, on pourra donc le faire en un seul coup d'oeil
+
+
+
+plt.subplot(2,1,1)#réponse impulsionnel
+plt.plot(tab_t[0:1000],z_impulsionnelle[0:1000])
+plt.title('réponse impulsionnelle zoomé')
+plt.grid()
+
+
+plt.subplot(2,1,2) #réponse harmonique
+plt.plot(tab_t[0:1000],z_forcé[0:1000])
+plt.title('Réponse harmonique avec f0 = 10 Hz zoomée')
+plt.grid()
+
+plt.show()
+
+
+### Affichage de l' amplitude et mise en évidence de l'hystérésis quand le systeme est soumis a des forces non linéaire de Duffing
+
+plt.figure(2)#les résultats suivant sont affiché sur la même figure car ils représentent notre analyse du fonctionnement de l'oscillateur non harmonique soumis a des forces de duffing
+
+
+##Balayage en fréquence croissant
+
+
+plt.subplot(2,2,1)          #Graphique "test" qui sert a mettre en image le phénomene de décalage du haut de la courbe en fonction de la force non linéaire appliqué
+plt.plot(tab_f,z_lineaire)
+plt.plot(f_amp_lineaire,z_amp_lineaire)
+plt.title('Reponse avec une force linéaire ')
+plt.xlabel('frequence(Hz)')
+plt.ylabel('oscillation(m)')
+plt.grid()
+plt.show()
+
+plt.subplot(2,2,2)          #Cas numéro 1 on applique une force de Duffing positif et on observe un décalage du pic vers la droite 
+plt.plot(tab_f,z_Duf_up)
+plt.plot(f_amp_Duf_up, z_amp_Duf_up)
+plt.title('Reponse avec force d interaction non linéaire (duffing)')
+plt.xlabel('frequence(Hz)')
+plt.ylabel('oscillation(m)')
+plt.grid()
+
+plt.subplot(2,2,3)          #Cas numéro 2 on applique une force de Duffing positif et on observe un décalage du pic vers la gauche
+plt.plot(tab_f,z_Duf_up2)
+plt.plot(f_amp_Duf_up2, z_amp_Duf_up2)
+plt.title('force d interaction non linéaire')
+plt.xlabel('frequence(Hz)')
+plt.ylabel('oscillation(m)')
+plt.grid()
+
+
+
+
+### Mise en évidence de l'hystérésys
+
+
+plt.subplot(2,2,4)          #on se rend compte ici du phénomène dystérésys propre aux oscillateur non linéaire 
+plt.plot(f_amp_Duf_down, z_amp_Duf_down,label='Amplitude avec f decroissante')#balayage en fréquence décroissant
+plt.plot(f_amp_Duf_up,z_amp_Duf_up, label='Amplitude avec f croissante')
+plt.title('Hysteresis ')
+plt.xlabel('frequence')
+plt.ylabel('amplitude')
+plt.grid()
+
+plt.show()
+
+
+### Affichage de l' amplitude et mise en évidence de l'hystérésis quand le systeme est soumis a des forces non linéaire de  Van Der Walls
+
+plt.figure(3)               #les résultats suivant sont affiché sur la même figure car ils représentent notre analyse du fonctionnement de l'oscillateur non harmonique soumis a des forces de Van Der Walls cette fois ci 
+
+plt.subplot(2,1,1)          #ici on applique une force différente et on  observe donc un décalage different vers la gauche
+plt.plot(tab_f,z_VDW_up)
+plt.plot(f_amp_VDW_up,z_amp_VDW_up)
+plt.title('Reponse avec force d interaction non linéaire (Van der Walls)')
+plt.xlabel('frequence(Hz)')
+plt.ylabel('amplitude(m)')
+plt.grid()
+
+plt.subplot(2,1,2)          #L'hystérésys pour une force de Van Der Waals 
+plt.plot(f_amp_VDW_down,z_amp_VDW_down)#Balayage en fréquence décroissant
+plt.plot(f_amp_VDW_up,z_amp_VDW_up)
+plt.title('Hysteresis 2')
+plt.xlabel('frequence(Hz)')
+plt.ylabel('amplitude(m)')
+plt.grid()
+
+plt.show()
+
+######Etude de la phase 
+### Amplitude et phase par la méthode de la détection synchrone
+
+
+p=600
+
+def Lockin(z, precision=p):
+    X=[]
+    Y=[]
+    X_moy=[]
+    Y_moy=[]
+    for i in range(int(N/precision)):   # On met bout a bout des sous-listes de largeur p correspondant au découpage de z
+        X.append([z[k]*np.cos(2*np.pi*tab_f[k]/2*tab_t[k]) for k in range(precision*i,precision*(i+1))])
+        Y.append([z[k]*np.sin(2*np.pi*tab_f[k]/2*tab_t[k]) for k in range(precision*i,precision*(i+1))])
+    for k in range(int(N/precision)):
+        X_moy.append(np.average(X[k]))
+        Y_moy.append(np.average(Y[k]))
+    Amplitude = [2*np.sqrt(X_moy[i]**2 + Y_moy[i]**2) for i in range(int(N/precision))]
+    Phase = [np.arctan(Y_moy[i]/X_moy[i]) for i in range(int(N/precision))]
+    return([Amplitude,Phase])
+
+
+Ampli_lockin = Lockin(z_lineaire)[0]
+Phase_lockin = Lockin(z_lineaire)[1]
+f_lockin = np.linspace(0,2*f0,int(N/p))
+
+
+### Amplitude et phase théorique
+
+def Ampli_phase_theorique(f):                                            #nous permet d'obtenir la courbe d'amplitude théorique
+    Ampli = [A0/(np.sqrt(Q0**2*(1-(i/f0)**2)**2 + (i/f0)**2)) for i in f]#formules données en cours
+    Phase = [np.arctan(i/(f0*Q0*(1-(i/f0)**2))) for i in f]              #formules données en cours
+    return(Ampli,Phase)
+
+Ampli_theorique = Ampli_phase_theorique(tab_f)[0]#L'amplitude doit etre commencé apres la premiere valeurs du tableau
+Phase_theorique = Ampli_phase_theorique(tab_f)[1]#La phase doit etre commencé apres la premiere valeurs du tableau
+
+
+plt.figure(4)               #sur la meme figure nous avons fait le choix de présenter l'amplitude numérique et sa phase et l'amplitude théorique et sa phase
+
+plt.subplot(2,2,1)          # Trace l'amplitude numérique obtenu avec la methode lock in
+plt.plot(f_lockin, Ampli_lockin)
+plt.title('Amplitude et phase numerique')
+plt.grid()
+
+plt.subplot(2,2,2)          #Calcul de l'amplitude théorique ( pas d'oscillation en début de courbe)
+plt.plot(tab_f,Ampli_theorique)
+plt.title('Amplitude et phase theorique')
+plt.grid()
+
+plt.subplot(2,2,3)          #Calcul de la phase théorique ( pas d'oscillation en début en millieu de courbe)
+plt.plot(f_lockin,Phase_lockin)
+plt.grid()
+
+plt.subplot(2,2,4)          # Trace la phase numérique obtenu avec la methode lock in
+plt.plot(tab_f,Phase_theorique)
+plt.grid()
+
+plt.show()                  #Permet d'observer l'évolution de la différence de phase du systeme
+
+
+
+### Marge d'erreur et precision du modele
+
+######Comparaison de nos résultats avec le modèle théorique et les résultats obtenu avec la detection synchrone
+
+pourcentage = 1  #pourcentage d'erreur
+erreur_ampli = []#futur tableau des points qui sont inferieur au pourcentage d'erreur de la courbe théorique pour la méthode lock in 
+C = 0            #compteur de point
+
+for i in range(len(Ampli_lockin)):#compare la méthode lock in au modèle théorique
+    erreur_ampli.append(abs(Ampli_lockin[i] - A0/(np.sqrt(Q0**2*(1-(f_lockin[i]/f0)**2)**2 + (f_lockin[i]/f0)**2)))) #remplissage globla du tableu d'erreur amplitude
+    
+for j in range(len(erreur_ampli)):#calcule le pourcentage de point qui sont a moins de un pour cent de la valeur théorique
+    if erreur_ampli[j] <= (pourcentage/100)*A0/(np.sqrt(Q0**2*(1-(f_lockin[i]/f0)**2)**2 + (f_lockin[i]/f0)**2)):#seul les point qui sont moin de un pour cent rentre dans le tableau
+        C+=1#permet d'obtenir le nombe total de point testé 
+
+ratio = C/len(erreur_ampli)*100#nombre de point à un pour cent méthode lock in 
+
+print(ratio, '% des points par détection synchrone sont à', pourcentage, '% ou moins de la valeur théorique' )#affiche notre premiere analyse de résultats pour la métode lock in
+
+enveloppe_1 = [i*(1+pourcentage/100) for i in Ampli_theorique]#crée une courbe à 5pour cent au dessu de la valeur théorique
+enveloppe_2 = [i*(1-pourcentage/100) for i in Ampli_theorique] #crée une courbe à 5pour cent au dessou de la valeur théorique
+
+
+var = np.sqrt(np.average([i**2 for i in erreur_ampli]))
+
+# Comparaison de la méthode des dérivées et modèle théorique
+
+pourcentage_2 = 1                    # second pourcentage d'erreur
+
+erreur_ampli_2 = []                  # futur tableau des points qui sont inferieur au pourcentage d'erreur de la courbe théorique pour la méthode lock in 
+
+C_2 = 0                              #second compteur de point
+
+for i in range(len(z_amp_lineaire)): #compare notre méthode aux modèles théorique 
+    erreur_ampli_2.append(abs(z_amp_lineaire[i] - A0/(np.sqrt(Q0**2*(1-(f_amp_lineaire[i]/f0)**2)**2 + (f_amp_lineaire[i]/f0)**2))))
+    
+for j in range(len(erreur_ampli_2)): #calcule le pourcentage de point qui sont a moins de un pour cent de la valeur théorique
+    if erreur_ampli_2[j] <= (pourcentage_2/100)*A0/(np.sqrt(Q0**2*(1-(f_amp_lineaire[i]/f0)**2)**2 + (f_amp_lineaire[i]/f0)**2)):
+        C_2+=1 #permet d'obtenir le nombe total de point testé 
+
+ratio_2 = C_2/len(erreur_ampli_2)*100 #nombre de point à un pour cent de la valeur théorique 
+
+print(ratio_2, '% des points par la méthode des dérivées sont à', pourcentage_2, '% ou moins de la valeur théorique' ) #nombre de point à un pour cent de la valeur théorique 
+
+var_2 = np.sqrt(np.average([i**2 for i in erreur_ampli_2]))  #affiche notre premiere analyse de résultats pour notre méthode
+
+
+### Comparaison des deux méthodes avec le modèles théorique
+
+
+plt.figure(5)
+
+
+plt.subplot(1,2,1) #vision global de la courbe
+plt.plot(tab_f,enveloppe_1,color = 'k', label = 'Enveloppe à 1% autour de la valeur théorique') #affiche une courbe à 5pour cent au dessu de la valeur théorique en noir 
+plt.plot(tab_f,enveloppe_2, color = 'k') #affiche une courbe à 5pour cent au dessou de la valeur théorique
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered', label = 'Amplitude par détection synchrone') #affiche la courbe d'amplitude obtenu par détection synchrone en orange
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue', label = 'Amplitude par méthode des dérivées')#affiche la courbe d'amplitude obtenu par détection synchrone en orange
+plt.xlabel('Fréquence en Hz')
+plt.ylabel('Amplitude en m')
+plt.legend()
+plt.grid()
+plt.title('Comparaison des différents modèles à la valeur théorique')
+
+
+### Zoom stratégiques 
+
+
+plt.subplot(3,2,2) #un zoom au debut de la courbe  qui illustre les différences majeur des deux méthodes 
+plt.xlim(1, 2)#taille de la fenetre (absice)
+plt.ylim(1.92e-10, 2.15e-10)#taille de la fenetre (ordonné)
+plt.plot(tab_f,enveloppe_1,color = 'k')
+plt.plot(tab_f,enveloppe_2, color = 'k')
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered')
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue')
+plt.grid()
+
+
+plt.subplot(3,2,4) #un zoom au sommet de la courbe ou les deux méthodes suivent des chemins qui sont relativement similaire 
+plt.xlim(9.85, 10)
+plt.ylim(0.99e-9, 1.02e-9)
+plt.plot(tab_f,enveloppe_1,color = 'k')
+plt.plot(tab_f,enveloppe_2, color = 'k')
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered')
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue')
+plt.grid()
+
+ 
+plt.subplot(3,2,6) # un zoom sur la fin de la courbe 
+plt.xlim(19.5, 20)
+plt.ylim(0.65e-10, 0.725e-10)
+plt.plot(tab_f,enveloppe_1,color = 'k')
+plt.plot(tab_f,enveloppe_2, color = 'k')
+plt.plot(f_lockin,Ampli_lockin, color = 'orangered')
+plt.plot(f_amp_lineaire,z_amp_lineaire, color = 'steelblue')
+plt.grid()
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
