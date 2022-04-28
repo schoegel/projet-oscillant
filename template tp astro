@@ -1,0 +1,159 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage{fancybox}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{braket}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{cmbright}
+\usepackage{abstract}
+\usepackage{listings}
+\usepackage{listingsutf8}
+\usepackage{lipsum}
+
+% options générales
+\setlist[itemize,1]{label={$\bullet$}}
+\setlist[itemize,2]{label={$\star$}}
+\titleformat*{\section}{\large\bfseries}
+\textheight=24cm \textwidth=17cm
+\topmargin=-1.cm \oddsidemargin=-.5cm
+\parindent=1cm
+
+% options de listing pour inclure du code
+\lstset{
+inputencoding=utf8/latin1,
+numbers=left,
+numberstyle={\tiny \texttt},
+numbersep=5pt,
+language=python,
+basicstyle=\ttfamily\small,
+backgroundcolor=\color{gray!5}
+}
+
+% entete et pied de page
+\pagestyle{fancy}
+\lhead{\textsc{Lassert Eliott et Alexandre Schoegel}} \chead{} \rhead{Compte rendu de Tp}
+\def\ligne#1{\leaders\hrule height #1\linethickness \hfill}
+% \pagestyle{empty}
+\title{Compte rendu de Tp Cartographie de la Voie Lactée}
+\author{Lassert Eliott et Alexandre Schoegel}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  
+
+  
+\end{abstract}
+    
+
+\section{Introduction}
+Ce lundi 28 mars, vers 15h, nous avons effectué des mesures autour de l'axe galactique, à l'aide de stellarium et d'un logiciel nous permettant de piloter un télescope radio à distance à Onsala en Suede. Dans ce compte rendu, nous présenterons nos résultats de traitement des mesures pour une vingtaine de spectres mesuré. Puis nous discuterons nos mesures.
+
+
+
+\section{Mesures}
+
+\begin{itemize}
+
+En entrant la longitude des objets que l'on souhaitait nous avons mesuré donc des fréquences pour chaques spectres.
+A partir de c'est mesures nous avons pu calculer la vitesse radiale grâce à l'équation suivante :
+
+
+$$
+V_{r} = c * \frac{f0}{f} - c
+
+$$
+
+Cette dernière étant démontrer dans la partie préparation du TP.
+
+Puis nous avont grace à la vitesse de réferenciel local au repos : 
+$V_{LSR}$
+
+Retrancher la vitesse réelle de l'objet.
+
+Aussi, nous avons codé en python un code capable d'extraire des spectres la longitude la vitesse de référentiel local au repos, ainsi que la fréquence de chaque pic. Voici notre version de ce code : 
+\end{itemize}
+
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{code.png}
+    \caption{Notre code, permettant d'analyser les spectres et de lire le format fits}
+  
+  \label{fig:courbes}
+\end{figure}
+
+\begin{itemize}
+Comme on peut le voir sur la figure suivante, en appliquant les formules pour l'ensembles des spectres mesurés, on obtient le graph suivant :
+
+\end{itemize}
+
+
+\newpage
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{graph 1.png}
+
+  
+  \label{fig:courbes}
+\end{figure}
+
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{graph2.png}
+ 
+  
+  \label{fig:courbes}
+\end{figure}
+
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{graph 3.png}
+  \caption{Notre tableur excel}
+  
+  
+  \label{fig:courbes}
+\end{figure}
+
+
+\begin{itemize}
+
+Grace à c'est calculs nous obtenons la cartographie des bras spiraux de la voie lactée suivante : 
+
+        
+\end{itemize}
+
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{Cartograpie.pdf}
+  \caption{Notre cartographie de la voie lactée}
+  
+  
+  \label{fig:courbes}
+\end{figure}
+
+\newpage
+
+\section{Discution et conclusion}
+
+Ce fut très interéssant pour nous de travailler sur de vrai mesures en temps réelles. Quand à la qualité de nos mesures, on aurai pu rendre notre cartographie plus fournie si l'on avait bénéficié de plus de temps pour mesurer plus d'objets. Avec un temps d'aquisition plus long nous aurions pu balayer une plage plus grande d'objet. En comparaison voici une cartographie présenter sur le site futura-sciences.com :
+
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{futura science voie lactée.jpg}
+  \caption{mesure effectuer à l'Observatoire de la montagne pourpre (Chine) et à l'université Côte d’Azur (France).}
+  
+  
+  \label{fig:courbes}
+\end{figure}
+
+
+\begin{itemize}
+Evidemment c'est mesure ont était réalisé par des groupe de recherche professionnel avec la téléscope en orbite gaia. Ce fut tres intéressant de réaliser des mesures qui ont une résonnace avec les sujets de la recherche actuel. La cartographie ci dessou date de l'année dernière.  
+
+\end{itemize}
+\end{document}
+
