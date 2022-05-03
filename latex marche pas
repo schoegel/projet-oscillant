@@ -1,0 +1,179 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage{fancybox}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{braket}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{cmbright}
+\usepackage{abstract}
+\usepackage{listings}
+\usepackage{listingsutf8}
+\usepackage{lipsum}
+
+% options générales
+\setlist[itemize,1]{label={$\bullet$}}
+\setlist[itemize,2]{label={$\star$}}
+\titleformat*{\section}{\large\bfseries}
+\textheight=24cm \textwidth=17cm
+\topmargin=-1.cm \oddsidemargin=-.5cm
+\parindent=1cm
+
+% options de listing pour inclure du code
+\lstset{
+inputencoding=utf8/latin1,
+numbers=left,
+numberstyle={\tiny \texttt},
+numbersep=5pt,
+language=python,
+basicstyle=\ttfamily\small,
+backgroundcolor=\color{gray!5}
+}
+
+% entete et pied de page
+\pagestyle{fancy}
+\lhead{\textsc{Lasserre Eliott et Alexandre Schoegel}} \chead{} \rhead{Projet modélisation}
+\def\ligne#1{\leaders\hrule height #1\linethickness \hfill}
+% \pagestyle{empty}
+\title{Modèle et recommandations pour votre rapport}
+\author{Lasserre Eliott et Schoegel Alexandre}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  Ce rapport à pour but de présenter notre modèle qui est capable de prédire les réponses de plusieurs oscillateurs.
+  
+  Et de présenter nos résultats pour : 
+  
+  \begin{itemize}
+  \item un oscillateur soumis a une impulsion 
+  \item un oscillateur forcé
+  \item deux oscillateur soumis a une force non linéaire 
+  
+
+
+
+ 
+\end{itemsize}
+    
+
+\section{Introduction}
+La théorie des oscillateurs est utile en physique dans de nombreux domaines.En effet beaucoup de phénomènes oscillent. Ainsi on retrouve les méthodes de modélisation liées aux oscillateurs dans différentes disciplines de la physique, comme la physique quantique la mécanique l'électricité, ce modèle s'applique dans beaucoup d'application technique.
+
+
+
+
+La première fois que les humains s'intéressent de près aux phénomènes oscillant, c'est pour trouver un moyen de mesure du temps précis. Au 17eme siècle Galilée découvre que la période d’oscillation d'un pendule est indépendante de l’amplitude d’oscillation. C'est ce qu'on appelle l'isochronisme du temps. Avant cette découverte tous les systèmes de mesures du temps sont imprécis et demandent un ajustement régulier de l'utilisateur. Peu 	 après la découverte de Galilée, c'est Newton qui définit pour la première fois l'oscillateur harmonique sous la forme d'une réécriture de la loi de hook. A partir de cet instant l'oscillateur harmonique défini tout système qui évolue selon l'équation suivante :
+
+$$m\overset{..}{x} = -Kx$$
+  Nous avons étudié en deuxième année de licence les oscillateurs harmoniques libres, amortie et forcé. C'est tout naturellement que nous nous sommes intéressés aux Oscillateurs non linéaires. Le but de notre projet est de constituer un programme capable de mettre en évidence le phénomène de l'hystérésis propre aux oscillateurs harmonique en régime non linéaire. 
+ $$
+  
+  Dans cette optique nous allons dans un premier temps présenter dans la premiére grande section de ce rapport "Oscillateur harmpnique en régime linéair" deux résultats dans des cas linéaires. Une réponse impulsionnelle de notre oscillateur puis une réponse harmonique. Alors nous décrirons comment on s'y est pris dans la sous partie "méthode et présentation des résultats" puis  nous confronterons nos resultat à a nos calcul fait a la main pour prouver que notre modèle fonctionne dans la seconde sous partie "validation". 
+  $$
+  
+  Dans un second temps nous allons dans la deuxieme grande partie de ce rapport "Oscillateur harmonique en régime non-linéair" nous présenterons notre travail pour des réponses en régime non linéaire.Dans une première sous section "méthode et présentation des résultats " notre méthode pour coder les force non linéaire de Dufing puis de Wan der Walls et nous présenterons une hystérésis deux fois, une pour chaque force d'interaction non linéaire avec lequel nous avons testé notre code dans une seconde sous section "Hystérésys".
+  $$
+  
+  Enfin dans la 3eme grande partie de notre rapport, nous présenterons notre travail sur la phase des oscillateurs non linéaire. Et nous conclurons.
+  
+  
+
+\newpage
+\section{Oscillateur harmonique en régime linéaire}
+    
+\subsection{méthode et présentation des résultats}
+
+Pour mettre a l'épreuve notre code nous allons modéliser cas que l'on connais bien. Le cas d'une réponse impulsionnelle et le cas d'un oscillateur forcé. Pour cela nous avons utiliser la méthode d'intégration de runge-kutta 4 pour definir les oscillations et l'amplitude de notre système. Nous obtenons les courbes suivante :
+\begin{figure}[h!]\centering
+  \includegraphics[width=.8\textwidth]{figure_1.png}
+  \caption{Courbe du haut : évolution des oscillations en fonction du temps dans le cas d'une impulsion (mesure de la réponse impulsionnelle) 
+  figure du haut : évolution des oscillations en fonction du temps dans le cas d'une excitation constante( f0 = 10Hz)
+  }
+  \label{fig:courbes}
+\end{figure}
+
+
+
+
+\subsection{Validations}
+
+ Pour montrer que nos resultats et donc notre modèle est Valide, nous allons nous intérésser au cas d'un systeme masse ressort à la vertical ( ).
+ 
+ Avec :
+
+ 
+    Le poid : $$\vec{P} = mgz(t)\vec{y}$$
+    
+    avec m la masse et g la constante gravitationnelle terestre 
+    
+    
+    la Tension du ressort : $$\vec{T} = -k(z(t)-l0)\vec{y}$$ 
+
+    avec k la constante de raideurs du ressort et l0 la longeur a vide du ressort  
+    
+    
+    La force de frottement $$\vec{Fr} = \alpha\overset{.}{z(t)}\vec{y}$$ 
+    z
+    avec $\alpha$ le coefficient de frottement 
+ 
+
+ 
+
+ Aprés avoir appliqué le produit fondamental de la dynamoique on obient l'équation differentielle suivante : 
+ 
+
+    $$\ddot x-\alpha\overset{.}{x}/m{x}+Kx/m = K/m z_{eq}$$
+
+    on pose : 
+    
+    $\frac{W_0}{Q_0}= \alpha/m$
+    
+    et :
+    
+    ${W_0^2} = K/m$
+     
+ 
+    avec W0 : la pulsation 
+    z
+    Q0 le facteur de qualité.
+    
+    Alors on obtient bien l'équation canonique pour les oscillateurs amorties :
+    
+ 
+    $$\overset{..}{x}-W0\overset{.}{x}/Q0{x}+W0^2x = W0 z_{eq}$$
+    
+
+    Puis en posant :
+    $Q0 > 1/2$
+ 
+  
+    on est bien dans le régime pseudo-périodique, c'est aussi le régime de notre modéle dans la figure 1~\ref{fig:courbes}
+    
+    
+    
+    
+ 
+ 
+ 
+
+
+\newpage
+\section{Oscillateur harmonique en régime non-linéair}
+\subsection{méthode et présentation des résultats}
+
+\subsection{Hystérésys}
+
+\newpage
+\section{Etude de la phase}
+
+
